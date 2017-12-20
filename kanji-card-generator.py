@@ -132,14 +132,11 @@ def main(argv):
         if len(argv) == 2 and argv[1] == 'regexes':
             print("Atomic: %s\n\nComplex: %s" % (atomic_entry, complex_entry))
             exit()
-        print("Usage: python3 %s <input-file> <output-dir>" % argv[0])
+        print("Usage: python3 %s <input-file> <card-file>" % argv[0])
         exit()
-    filename = argv[1]
-    directory = argv[2]
-    if not os.path.exists(directory):
-        os.mkdir(directory)
-    with open(filename) as f:
-        i = 0
+    inputfile = argv[1]
+    cardfile = argv[2]
+    with open(inputfile) as f, open(cardfile, 'w') as cdfile:
         for line in f.readlines():
             ast = parse_entry(line)
             if ast is None:
@@ -153,12 +150,8 @@ def main(argv):
                                                   filter(lambda x: 'translation' in x,
                                                          ast['onyomi'] +
                                                          ast['kunyomi'] if 'kunyomi' in ast else []))))
-            table = construct_table(ast)
-            with open(os.path.join(directory, ('%03d ' % i) + name + '.txt'), 'w') as kjfile:
-                kjfile.write(name+'\r\n')
-                kjfile.write(translations+'\r\n')
-                kjfile.write(table+'\r\n')
-            i += 1
+            table = construct_table(ast).replace('\n', '').replace('"', '""')
+            cdfile.write('<div>%s</div>\t%s\t"%s"\t\r\n' % (name, translations, table))
 
 
 if __name__ == "__main__":
