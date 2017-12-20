@@ -82,13 +82,13 @@ def parse_entry(entry):
 
 
 # Two parameters: kanji and table contents
-kanji_table_template = '''<table>
+kanji_table_template = '''<center><table>
   <tr>
     <td style="font-size: 2em; padding-right: 0.5em;">%s</td>
     <td><table>
       %s</table></td>
   </tr>
-</table>
+</table></center>
 '''
 
 # Two parameters: kunyomi/onyomi and translation
