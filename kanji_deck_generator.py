@@ -7,22 +7,22 @@ import sys
 from functools import reduce
 
 
-kanji = "[\u4e00-\u9faf]"
-hiragana = "[\u3040-\u309f\\(\\)]" # + parentheses for ending
-katakana = "[\u30a0-\u30ff・]" # + onyomi usual separator
-punctuation = "[,、](?![^\[\]]*\])"
+kanji = '[\u4e00-\u9faf]'
+hiragana = '[\u3040-\u309f\\(\\)]' # + parentheses for ending
+katakana = '[\u30a0-\u30ff・]' # + onyomi usual separator
+punctuation = '[,、](?![^\[\]]*\])'
 
 
-trimmed_string = r"(?:[^\]\s]|[^\]\s][^\]]*[^\]\s])"
-translation = r"(?:\s*\[" + trimmed_string + r"\])"
+trimmed_string = r'(?:[^\]\s]|[^\]\s][^\]]*[^\]\s])'
+translation = r'(?:\s*\[' + trimmed_string + r'\])'
 
 
 def make_csl(character, with_tips=None):
-    """Function for generating CSV and CSV-with-optional-translations matching regexes"""
+    '''Function for generating CSV and CSV-with-optional-translations matching regexes'''
     if with_tips is None or with_tips == False:
-        return (r"\s*((?:%s+%s\s*)*%s+)\s*") % (character, punctuation, character)
+        return (r'\s*((?:%s+%s\s*)*%s+)\s*') % (character, punctuation, character)
     else:
-        return (r"\s*((?:%s+%s?%s\s*)*%s+%s?)\s*") % (character, translation, punctuation, character, translation)
+        return (r'\s*((?:%s+%s?%s\s*)*%s+%s?)\s*') % (character, translation, punctuation, character, translation)
 
 
 # Groups: 0 - kanji, 1 - translation, 2 - CSV of onyomi, 3 - CSV of kunyomi
@@ -84,7 +84,7 @@ def parse_entry(entry):
 # Two parameters: kanji and table contents
 kanji_table_template = '''<center><table>
   <tr>
-    <td style="font-size: 2em; padding-right: 0.5em;">%s</td>
+    <td style='font-size: 2em; padding-right: 0.5em;'>%s</td>
     <td><table>
       %s</table></td>
   </tr>
@@ -101,8 +101,8 @@ reading_row_template = '''<tr>
 
 # One parameter: whole kanji translation
 center_row_template = '''<tr>
-        <td style="width: 5em;"><hr></td>
-        <td style="padding-left: 2.5em;"></td>
+        <td style='width: 5em;'><hr></td>
+        <td style='padding-left: 2.5em;'></td>
         <td><center>%s</center></td>
       </tr>
       '''
@@ -130,9 +130,9 @@ def construct_table(ast):
 def main(argv):
     if len(argv) < 3:
         if len(argv) == 2 and argv[1] == 'regexes':
-            print("Atomic: %s\n\nComplex: %s" % (atomic_entry, complex_entry))
+            print('Atomic: %s\n\nComplex: %s' % (atomic_entry, complex_entry))
             exit()
-        print("Usage: python3 %s <input-file> <card-file>" % argv[0])
+        print('Usage: python3 %s <input-file> <card-file>' % argv[0])
         exit()
     inputfile = argv[1]
     cardfile = argv[2]
@@ -140,7 +140,7 @@ def main(argv):
         for line in f.readlines():
             ast = parse_entry(line)
             if ast is None:
-                print("Строка '%s' имеет неправильный формат." % line)
+                print('Строка \'%s\' имеет неправильный формат.' % line)
                 continue
             name = ast['kanji']['char']
             if ast['type'] == 'atomic':
@@ -154,5 +154,5 @@ def main(argv):
             cdfile.write('<div>%s</div>\t%s\t"%s"\t\r\n' % (name, translations, table))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     exit(main(sys.argv))
