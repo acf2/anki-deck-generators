@@ -9,8 +9,8 @@ from functools import reduce
 
 kanji = '[\u4e00-\u9faf]'
 hiragana = '[\u3040-\u309f\\(\\)]' # + parentheses for ending
-katakana = '[\u30a0-\u30ff・]' # + onyomi usual separator
-punctuation = '[,、](?![^\[\]]*\])'
+katakana = '[\u30a0-\u30ff]' # + onyomi usual separator
+punctuation = '[,、・](?![^\[\]]*\])'
 
 
 trimmed_string = r'(?:[^\]\s]|[^\]\s][^\]]*[^\]\s])'
@@ -20,15 +20,15 @@ translation = r'(?:\s*\[' + trimmed_string + r'\])'
 def make_csl(character, with_tips=None):
     '''Function for generating CSV and CSV-with-optional-translations matching regexes'''
     if with_tips is None or with_tips == False:
-        return (r'\s*((?:%s+%s\s*)*%s+)\s*') % (character, punctuation, character)
+        return (r'((?:%s+%s\s*)*%s+)') % (character, punctuation, character)
     else:
-        return (r'\s*((?:%s+%s?%s\s*)*%s+%s?)\s*') % (character, translation, punctuation, character, translation)
+        return (r'((?:%s+%s?%s\s*)*%s+%s?)') % (character, translation, punctuation, character, translation)
 
 
 # Groups: 0 - kanji, 1 - translation, 2 - CSV of onyomi, 3 - CSV of kunyomi
-atomic_entry = r'^\s*(%s)\s*\[(%s)\]\s*:%s(?::%s)?$' % (kanji, trimmed_string, make_csl(katakana), make_csl(hiragana))
+atomic_entry = r'^\s*(%s)\s*\[(%s)\]\s*:\s*(?:%s)\s*:\s*(?:%s)?\s*$' % (kanji, trimmed_string, make_csl(katakana), make_csl(hiragana))
 # Groups: 0 - kanji, 1 - CSV of onyomi with translations, 2 - CSV of kunyomi with translations
-complex_entry = r'^\s*(%s)\s*:%s(?::%s)?$' % (kanji, make_csl(katakana, True), make_csl(hiragana, True))
+complex_entry = r'^\s*(%s)\s*:\s*(?:%s)?\s*:\s*(?:%s)?\s*$' % (kanji, make_csl(katakana, True), make_csl(hiragana, True))
 
 
 def parse_entry(entry):
@@ -54,12 +54,13 @@ def parse_entry(entry):
             'kunyomi': []
         }
         result['kanji']['char'] = match.groups()[0]
-        for word in [w for w in re.split(punctuation, match.groups()[1])]:
-            m = re.match('(%s+)\s*(%s)?' % (katakana, translation), word)
-            if len(m.groups()) < 2 or m.groups()[1] is None:
-                result['onyomi'].append({'reading': m.groups()[0]})
-            else:
-                result['onyomi'].append({'reading': m.groups()[0], 'translation': m.groups()[1][1:-1]})
+        if len(match.groups()) > 1 and match.groups()[1] is not None:
+            for word in [w for w in re.split(punctuation, match.groups()[1])]:
+                m = re.match('(%s+)\s*(%s)?' % (katakana, translation), word)
+                if len(m.groups()) < 2 or m.groups()[1] is None:
+                    result['onyomi'].append({'reading': m.groups()[0]})
+                else:
+                    result['onyomi'].append({'reading': m.groups()[0], 'translation': m.groups()[1][1:-1]})
         if len(match.groups()) > 2 and match.groups()[2] is not None:
             for word in [w for w in re.split(punctuation, match.groups()[2])]:
                 m = re.match('(%s+)\s*(%s)?' % (hiragana, translation), word)
