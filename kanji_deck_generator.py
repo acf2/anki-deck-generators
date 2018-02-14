@@ -83,7 +83,7 @@ def parse_entry(entry):
 
 
 # Two parameters: kanji and table contents
-kanji_table_template = '''<center><table>
+kanji_table_template = '''<center><table style='font-size: 1em'>
   <tr>
     <td style='font-size: 2em; padding-right: 0.5em;'>%s</td>
     <td><table>
